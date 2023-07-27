@@ -2,12 +2,22 @@ import { Direction } from './direction.js';
 const c = document.getElementById("gameCanvas");
 var ctx = c.getContext("2d");
 let p1;
+let startCount;
+// let startCount2 : number;
+let gameWidth = 800;
+let gameHeight = 800;
 function renderLine(startX, startY, endX, endY) {
+    //console.log(ctx.lineWidth);
     ctx.moveTo(startX, startY);
     ctx.lineTo(endX, endY);
     ctx.stroke();
 }
 function renderRect(startX, startY, width = 50, height = 50) {
+    ctx.fillStyle = "black";
+    ctx.fillRect(startX, startY, width, height);
+}
+function renderColourRect(colour, startX, startY, width = 50, height = 50) {
+    ctx.fillStyle = colour;
     ctx.fillRect(startX, startY, width, height);
 }
 function renderInitialGridLines() {
@@ -17,17 +27,102 @@ function renderInitialGridLines() {
     }
 }
 function initPlayers() {
-    p1 = { direction: Direction.Right, positions: [[100, 400]] };
+    p1 = { direction: Direction.Right, positions: [[100, 400]], futureDirection: Direction.Right };
 }
 function renderPlayers() {
-    renderRect(p1.positions[0][0], p1.positions[0][1]);
+    for (let pos of p1.positions) {
+        renderRect(pos[0], pos[1]);
+    }
+    //renderRect(p1.positions[0][0],p1.positions[0][1]);
 }
+document.addEventListener('keydown', function (event) {
+    if (event.defaultPrevented)
+        return;
+    switch (event.key) {
+        case "ArrowDown":
+            event.preventDefault();
+            if (p1.direction != Direction.Up)
+                p1.futureDirection = Direction.Down;
+            break;
+        case "ArrowUp":
+            event.preventDefault();
+            if (p1.direction != Direction.Down)
+                p1.futureDirection = Direction.Up;
+            break;
+        case "ArrowLeft":
+            event.preventDefault();
+            if (p1.direction != Direction.Right)
+                p1.futureDirection = Direction.Left;
+            break;
+        case "ArrowRight":
+            event.preventDefault();
+            if (p1.direction != Direction.Left)
+                p1.futureDirection = Direction.Right;
+            break;
+        default:
+            return;
+    }
+});
+function getNewCoordinates(originalCoordinates, direction) {
+    let coordinates = originalCoordinates;
+    if (direction == Direction.Right) {
+        coordinates[0] = (coordinates[0] + 50) % 800;
+    }
+    else if (direction == Direction.Left) {
+        coordinates[0] = (coordinates[0] - 50 + 800) % 800;
+    }
+    else if (direction == Direction.Down) {
+        coordinates[1] = (coordinates[1] + 50) % 800;
+    }
+    else if (direction == Direction.Up) {
+        coordinates[1] = (coordinates[1] - 50 + 800) % 800;
+    }
+    return coordinates;
+}
+function moveListener() {
+    let lastCoordinate = structuredClone(p1.positions[p1.positions.length - 1]);
+    for (let i = p1.positions.length - 1; i > 0; i--) {
+        p1.positions[i] = structuredClone(p1.positions[i - 1]);
+    }
+    p1.direction = p1.futureDirection;
+    p1.positions[0] = getNewCoordinates(p1.positions[0], p1.direction);
+    renderColourRect("white", lastCoordinate[0], lastCoordinate[1]);
+}
+function playGame() {
+    moveListener();
+    renderInitialGridLines();
+    renderPlayers();
+}
+var counter = setInterval(function () {
+    if (startCount == 0) {
+        clearInterval(counter);
+        setInterval(playGame, 100);
+    }
+    else {
+        let ele = document.getElementById('demo');
+        ele.innerHTML = startCount.toString();
+        startCount--;
+    }
+}, 1000);
+// var counter2 = setInterval(function() {
+//     if (startCount2 == 0) {
+//         clearInterval(counter2);
+//     }
+//     else {
+//         let ele = document.getElementById('demo2')!!;
+//         ele.innerHTML = startCount2.toString();
+//         console.log(startCount2);
+//         startCount2--;
+//     }
+// },1000);
 document.addEventListener('DOMContentLoaded', function () {
     //alert('Game will begin now');
     ctx.lineWidth = 1;
     renderInitialGridLines();
     initPlayers();
     renderPlayers();
+    startCount = 5;
+    // startCount2 = 50;
 });
 //set interval (call a tick function)
 //count down
