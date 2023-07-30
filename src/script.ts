@@ -90,6 +90,14 @@ function getNewCoordinates(originalCoordinates : Array<number>,direction: Direct
     return coordinates;
 }
 
+function fillOldSquare(x : number, y : number) {
+    renderColourRect("white",x,y);
+    renderLine(x,y,x+50,y);
+    renderLine(x,y,x,y+50);
+    renderLine(x+50,y,x+50,y+50);
+    renderLine(x,y+50,x+50,y+50);
+}
+
 function moveListener() {
     let lastCoordinate = structuredClone(p1.positions[p1.positions.length - 1]);
     for (let i = p1.positions.length-1; i > 0; i--) {
@@ -97,12 +105,12 @@ function moveListener() {
     }
     p1.direction = p1.futureDirection;
     p1.positions[0] = getNewCoordinates(p1.positions[0],p1.direction);
-    renderColourRect("white",lastCoordinate[0],lastCoordinate[1]);
+    //renderColourRect("white",lastCoordinate[0],lastCoordinate[1]);
+    fillOldSquare(lastCoordinate[0],lastCoordinate[1]);
 }
 
 function playGame() {
     moveListener();
-    renderInitialGridLines();
     renderPlayers();
 }
 
