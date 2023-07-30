@@ -2,7 +2,7 @@ import { Direction } from './direction.js';
 import './math.js';
 import { arrayNumbersEqual, randomCell } from './math.js';
 const c = document.getElementById("gameCanvas");
-var ctx = c.getContext("2d");
+let ctx = c.getContext("2d");
 let p1;
 let startCount;
 let gameWidth = 800;
@@ -152,8 +152,6 @@ function moveListener() {
     }
     p1.direction = p1.futureDirection;
     p1.positions[0] = getNewCoordinates(p1.positions[0], p1.direction);
-    // setSquareStatus(p1.positions[0],1);
-    // setSquareStatus(p1.lastPosition,0);
 }
 function playGame() {
     moveListener();
@@ -164,7 +162,7 @@ function playGame() {
     renderObjects();
 }
 function foodGen() {
-    if (foodLoc[0] == -1) { //unset
+    if (foodLoc[0] == -1) {
         foodLoc = randomCell();
     }
     else { //still on map
@@ -175,8 +173,8 @@ function foodGen() {
 var counter = setInterval(function () {
     if (startCount == 0) {
         clearInterval(counter);
-        playGameIntervalID = setInterval(playGame, 100); //100
-        foodGenIntervalID = setInterval(foodGen, 5000); //5000
+        playGameIntervalID = setInterval(playGame, 100);
+        foodGenIntervalID = setInterval(foodGen, 5000);
     }
     else {
         let ele = document.getElementById('demo');
@@ -185,7 +183,6 @@ var counter = setInterval(function () {
     }
 }, 1000);
 document.addEventListener('DOMContentLoaded', function () {
-    //alert('Game will begin now');
     foodLoc = [-1, -1];
     ctx.lineWidth = 1;
     squareStatus = new Array(16);
@@ -197,11 +194,6 @@ document.addEventListener('DOMContentLoaded', function () {
     initPlayers();
     renderObjects();
     startCount = 3;
-    // startCount2 = 50;
 });
-//set interval (call a tick function)
-//count down
-//moving upon tick
-//see what button is being pressed upon tick and adding it
 //winning and losing upon clash (array of occupied coordinates by whom)
 //websockets!!!!
