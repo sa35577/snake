@@ -7,11 +7,12 @@ const c = <HTMLCanvasElement>document.getElementById("gameCanvas");
 var ctx = c.getContext("2d")!!;
 let p1 : Player;
 let startCount : number;
-// let startCount2 : number;
 let gameWidth : number = 800;
 let gameHeight : number = 800;
 let foodLoc : Array<number>;
 let squareStatus : Array<Array<number>>;
+let playGameIntervalID : number;
+let foodGenIntervalID : number;
 
 function renderLine(startX : number, startY : number, endX : number, endY : number) {
     ctx.beginPath();
@@ -114,15 +115,52 @@ function fillOldSquare(x : number, y : number) {
     renderLine(x,y+50,x+50,y+50);
 }
 
+function setSquareStatus(pos : Array<number>, value : number) : void {
+    squareStatus[Math.floor(pos[0]/50)][Math.floor(pos[1]/50)] = value; 
+}
+
+function getSquareStatus(pos : Array<number>) {
+    return squareStatus[Math.floor(pos[0]/50)][Math.floor(pos[1]/50)];
+}
+
 function collisionDetector() {
     //only possibility atm is the player detecting with the food
+    let p1Grows : boolean = false;
+    //let p2Grows : boolean = false;
+    let p1Loses : boolean = false;
+    // let p2Loses : boolean = false;
     if (foodLoc[0] != -1) {
         if (arrayNumbersEqual(foodLoc,p1.positions[0])) {
             console.log("collision");
             p1.positions.push(p1.lastPosition);
             foodLoc = [-1, -1];
-            //TODO: Update old square art work
+            p1Grows = true;
+            // setSquareStatus(p1.lastPosition,1);
         }
+        //same logic for player 2 when implemented
+    }
+    console.log(p1Grows);
+    if (p1Grows) setSquareStatus(p1.lastPosition,1);
+    else setSquareStatus(p1.lastPosition,0);
+    
+    // if (p2Grows) setSquareStatus(p2.lastPosition,1);
+    // else setSquareStatus(p2.lastPosition,0);
+
+    //TODO: check if both p1 and p2 are about to hit each head on
+
+    if (getSquareStatus(p1.positions[0]) != 0 ||
+        (p1.positions.length > 1 && arrayNumbersEqual(p1.lastPosition,p1.positions[0]))) { //p1 collided with p2 (not implemented) or itself
+        p1Loses = true;
+
+    }
+    else setSquareStatus(p1.positions[0],1);
+
+    //same for p2
+
+    if (p1Loses) {
+        alert('you lose lol');
+        clearInterval(playGameIntervalID);
+        clearInterval(foodGenIntervalID);
     }
 }
 
@@ -133,6 +171,8 @@ function moveListener() {
     }
     p1.direction = p1.futureDirection;
     p1.positions[0] = getNewCoordinates(p1.positions[0],p1.direction);
+    // setSquareStatus(p1.positions[0],1);
+    // setSquareStatus(p1.lastPosition,0);
     
 }
 
@@ -158,8 +198,8 @@ function foodGen() {
 var counter = setInterval(function() {
     if (startCount == 0) {
         clearInterval(counter);
-        setInterval(playGame,100);
-        setInterval(foodGen,5000);
+        playGameIntervalID = setInterval(playGame,100); //100
+        foodGenIntervalID = setInterval(foodGen,5000); //5000
     }
     else {
         let ele = document.getElementById('demo')!!;
@@ -168,24 +208,17 @@ var counter = setInterval(function() {
     }
 },1000);
 
-// var counter2 = setInterval(function() {
-//     if (startCount2 == 0) {
-//         clearInterval(counter2);
-//     }
-//     else {
-//         let ele = document.getElementById('demo2')!!;
-//         ele.innerHTML = startCount2.toString();
-//         console.log(startCount2);
-//         startCount2--;
-//     }
-// },1000);
-
 
 
 document.addEventListener('DOMContentLoaded', function() {
     //alert('Game will begin now');
     foodLoc = [-1,-1];
     ctx.lineWidth = 1;
+    squareStatus = new Array(16);
+    for (let i = 0; i < 16; i++) {
+        squareStatus[i] = new Array(16).fill(0);
+    }
+    console.log(squareStatus);
     renderInitialGridLines();
     initPlayers();
     renderObjects();
