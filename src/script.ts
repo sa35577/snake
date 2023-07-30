@@ -11,9 +11,10 @@ let startCount : number;
 let gameWidth : number = 800;
 let gameHeight : number = 800;
 let foodLoc : Array<number>;
+let squareStatus : Array<Array<number>>;
 
 function renderLine(startX : number, startY : number, endX : number, endY : number) {
-    //console.log(ctx.lineWidth);
+    ctx.beginPath();
     ctx.moveTo(startX,startY);
     ctx.lineTo(endX,endY);
     ctx.stroke();
@@ -25,6 +26,7 @@ function renderRect(startX : number, startY : number, width : number = 50, heigh
 }
 
 function renderColourRect(colour : string, startX : number, startY : number, width : number = 50, height : number = 50) {
+    ctx.beginPath();
     ctx.fillStyle = colour;
     ctx.fillRect(startX,startY,width,height);
 }
