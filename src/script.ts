@@ -1,5 +1,7 @@
 import { Direction } from './direction.js';
 import { Player } from './player.js'
+// import { io } from 'socket.io-client';
+
 import './math.js'
 import { arrayNumbersEqual, randomCell } from './math.js';
 
@@ -13,6 +15,7 @@ let foodLoc : Array<number>;
 let squareStatus : Array<Array<number>>;
 let playGameIntervalID : number;
 let foodGenIntervalID : number;
+const socket = io("http://localhost:3000"); // Replace with your server URL
 
 function renderLine(startX : number, startY : number, endX : number, endY : number) {
     ctx.beginPath();
@@ -223,3 +226,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 //winning and losing upon clash (array of occupied coordinates by whom)
 //websockets!!!!
+
+socket.on('connect', () => {    
+    console.log('Connected to server');
+});
+
+socket.on('game_start', (data: any) => {
+    console.log('Game started');
+    console.log(data);
+});

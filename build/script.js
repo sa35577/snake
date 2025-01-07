@@ -1,4 +1,5 @@
 import { Direction } from './direction.js';
+// import { io } from 'socket.io-client';
 import './math.js';
 import { arrayNumbersEqual, randomCell } from './math.js';
 const c = document.getElementById("gameCanvas");
@@ -11,6 +12,7 @@ let foodLoc;
 let squareStatus;
 let playGameIntervalID;
 let foodGenIntervalID;
+const socket = io("http://localhost:3000"); // Replace with your server URL
 function renderLine(startX, startY, endX, endY) {
     ctx.beginPath();
     ctx.moveTo(startX, startY);
@@ -197,3 +199,10 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 //winning and losing upon clash (array of occupied coordinates by whom)
 //websockets!!!!
+socket.on('connect', () => {
+    console.log('Connected to server');
+});
+socket.on('game_start', (data) => {
+    console.log('Game started');
+    console.log(data);
+});
