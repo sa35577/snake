@@ -207,7 +207,6 @@ function foodGen() {
     else { //still on map
         // console.log("still on map");
     }
-    // console.log(foodLoc);
 }
 
 var counter = setInterval(function() {
