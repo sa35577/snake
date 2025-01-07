@@ -1,5 +1,5 @@
+var _a, _b;
 import { Direction } from './direction.js';
-// import { io } from 'socket.io-client';
 import './math.js';
 import { arrayNumbersEqual, randomCell } from './math.js';
 const c = document.getElementById("gameCanvas");
@@ -12,7 +12,8 @@ let foodLoc;
 let squareStatus;
 let playGameIntervalID;
 let foodGenIntervalID;
-const socket = io("http://localhost:3000"); // Replace with your server URL
+let game_id = "";
+const socket = io("http://localhost:3000"); // Replace with server URL
 function renderLine(startX, startY, endX, endY) {
     ctx.beginPath();
     ctx.moveTo(startX, startY);
@@ -53,6 +54,20 @@ function renderObjects() {
         renderCircleInSquare(foodLoc[0], foodLoc[1]);
     }
 }
+(_a = document.getElementById('createGame')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', function () {
+    console.log('Create game clicked');
+    navigator.clipboard.writeText(game_id).then(function () {
+        console.log('Text copied to clipboard');
+    }).catch(function (err) {
+        console.error('Could not copy text: ', err);
+    });
+});
+(_b = document.getElementById('joinGame')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', function () {
+    console.log('Join game clicked');
+    let joinGameId = document.getElementById('gameId').value;
+    console.log(joinGameId);
+    socket.emit('join_game', { game_id: joinGameId });
+});
 document.addEventListener('keydown', function (event) {
     if (event.defaultPrevented)
         return;
@@ -168,9 +183,9 @@ function foodGen() {
         foodLoc = randomCell();
     }
     else { //still on map
-        console.log("still on map");
+        // console.log("still on map");
     }
-    console.log(foodLoc);
+    // console.log(foodLoc);
 }
 var counter = setInterval(function () {
     if (startCount == 0) {
@@ -191,7 +206,6 @@ document.addEventListener('DOMContentLoaded', function () {
     for (let i = 0; i < 16; i++) {
         squareStatus[i] = new Array(16).fill(0);
     }
-    console.log(squareStatus);
     renderInitialGridLines();
     initPlayers();
     renderObjects();
@@ -205,4 +219,9 @@ socket.on('connect', () => {
 socket.on('game_start', (data) => {
     console.log('Game started');
     console.log(data);
+});
+socket.on('new_game_id', (data) => {
+    console.log('New game id received');
+    console.log(data);
+    game_id = data.game_id;
 });

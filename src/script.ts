@@ -1,6 +1,5 @@
 import { Direction } from './direction.js';
 import { Player } from './player.js'
-// import { io } from 'socket.io-client';
 
 import './math.js'
 import { arrayNumbersEqual, randomCell } from './math.js';
@@ -15,7 +14,8 @@ let foodLoc : Array<number>;
 let squareStatus : Array<Array<number>>;
 let playGameIntervalID : number;
 let foodGenIntervalID : number;
-const socket = io("http://localhost:3000"); // Replace with your server URL
+let game_id = "";
+const socket = io("http://localhost:3000"); // Replace with server URL
 
 function renderLine(startX : number, startY : number, endX : number, endY : number) {
     ctx.beginPath();
@@ -64,9 +64,24 @@ function renderObjects() {
     }
 }
 
+document.getElementById('createGame')?.addEventListener('click', function() {
+    console.log('Create game clicked');
+    navigator.clipboard.writeText(game_id).then(function() {
+        console.log('Text copied to clipboard');
+    }).catch(function(err) {
+        console.error('Could not copy text: ', err);
+    });
+});
+
+document.getElementById('joinGame')?.addEventListener('click', function() {
+    console.log('Join game clicked');
+    let joinGameId = (<HTMLInputElement>document.getElementById('gameId')).value;
+    console.log(joinGameId);
+    socket.emit('join_game', { game_id: joinGameId });
+});
+
 document.addEventListener('keydown', function(event) {
     if (event.defaultPrevented) return;
-
     switch(event.key) {
         case "ArrowDown":
             event.preventDefault();
@@ -190,9 +205,9 @@ function foodGen() {
         foodLoc = randomCell();
     }
     else { //still on map
-        console.log("still on map");
+        // console.log("still on map");
     }
-    console.log(foodLoc);
+    // console.log(foodLoc);
 }
 
 var counter = setInterval(function() {
@@ -217,7 +232,7 @@ document.addEventListener('DOMContentLoaded', function() {
     for (let i = 0; i < 16; i++) {
         squareStatus[i] = new Array(16).fill(0);
     }
-    console.log(squareStatus);
+
     renderInitialGridLines();
     initPlayers();
     renderObjects();
@@ -235,3 +250,13 @@ socket.on('game_start', (data: any) => {
     console.log('Game started');
     console.log(data);
 });
+
+
+socket.on('new_game_id', (data: any) => { 
+    console.log('New game id received');
+    console.log(data);
+    game_id = data.game_id;
+});
+
+ 
+
